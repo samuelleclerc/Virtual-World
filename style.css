@@ -1,0 +1,13 @@
+body {
+  background-color: #222;
+  text-align: center;
+}
+
+h1 {
+  color: white;
+  font-family: Monaco, monospace;
+}
+
+#canvas {
+  background-color: #2a5;
+}

@@ -16,6 +16,8 @@
       <!--      <button onclick="removeAll()">Remove All</button>-->
     </div>
 
+    <script src="js/graphEditor.js"></script>
+    <script src="js/math/utils.js"></script>
     <script src="js/math/graph.js"></script>
     <script src="js/primitives/point.js"></script>
     <script src="js/primitives/segment.js"></script>
@@ -97,7 +99,15 @@
         [point1, point2, point3, point4],
         [segment1, segment2, segment3, segment4],
       );
-      graph.draw(context);
+      const graphEditor = new GraphEditor(canvas, graph);
+
+      animate();
+
+      function animate() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        graphEditor.display();
+        requestAnimationFrame(animate);
+      }
     </script>
   </body>
 </html>

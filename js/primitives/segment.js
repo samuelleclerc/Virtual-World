@@ -4,12 +4,43 @@ class Segment {
     this.point2 = point2;
   }
 
+  length() {
+    return distance(this.point1, this.point2);
+  }
+
+  directionVector() {
+    return normalize(subtract(this.point2, this.point1));
+  }
+
   equals(segment) {
     return this.includes(segment.point1) && this.includes(segment.point2);
   }
 
   includes(point) {
     return this.point1.equals(point) || this.point2.equals(point);
+  }
+
+  distanceToPoint(point) {
+    const projection = this.projectPoint(point);
+    if (projection.offset > 0 && projection.offset < 1) {
+      return distance(point, projection.point);
+    }
+
+    const distanceToPoint1 = distance(point, this.point1);
+    const distanceToPoint2 = distance(point, this.point2);
+    return Math.min(distanceToPoint1, distanceToPoint2);
+  }
+
+  projectPoint(point) {
+    const a = subtract(point, this.point1);
+    const b = subtract(this.point2, this.point1);
+    const normalizedB = normalize(b);
+    const scalar = dot(a, normalizedB);
+    const projection = {
+      point: add(this.point1, scale(normalizedB, scalar)),
+      offset: scalar / magnitude(b),
+    };
+    return projection;
   }
 
   draw(context, { width = 2, color = "black", dash = [] } = {}) {

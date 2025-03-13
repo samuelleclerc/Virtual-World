@@ -70,6 +70,36 @@ class Polygon {
     }
   }
 
+  distanceToPoint(point) {
+    return Math.min(
+      ...this.segments.map((segment) => segment.distanceToPoint(point)),
+    );
+  }
+
+  distanceToPolygon(polygon) {
+    return Math.min(
+      ...this.points.map((point) => polygon.distanceToPoint(point)),
+    );
+  }
+
+  intersectsPolygon(polygon) {
+    for (let segment1 of this.segments) {
+      for (let segment2 of polygon.segments) {
+        if (
+          getIntersection(
+            segment1.point1,
+            segment1.point2,
+            segment2.point1,
+            segment2.point2,
+          )
+        ) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   // TODO: Refactor to actually calculate if contains segment & replace containsPoint
   containsSegment(segment) {
     const midpoint = average(segment.point1, segment.point2);

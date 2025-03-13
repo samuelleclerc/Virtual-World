@@ -94,11 +94,17 @@
       const viewport = new Viewport(canvas);
       const graphEditor = new GraphEditor(viewport, graph);
 
+      let graphHash = graph.hash();
       animate();
 
       function animate() {
         viewport.reset();
-        world.generate();
+
+        if (graph.hash() !== graphHash) {
+          world.generate();
+          graphHash = graph.hash();
+        }
+
         world.draw(context);
         context.globalAlpha = 0.3;
         graphEditor.display();

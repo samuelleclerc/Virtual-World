@@ -40,6 +40,27 @@ class World {
     this.trees = this.#generateTrees();
   }
 
+  #isValidTreePlacement(point, invalidPolygons, trees) {
+    // Check if tree is inside/nearby building/road
+    if (
+      invalidPolygons.some(
+        (polygon) =>
+          polygon.containsPoint(point) ||
+          polygon.distanceToPoint(point) < this.treeSize / 2,
+      )
+    )
+      return false;
+
+    // Check if tree is too close to other trees
+    if (trees.some((tree) => distance(tree, point) < this.treeSize))
+      return false;
+
+    // Check if tree is too far from anything
+    return invalidPolygons.some(
+      (polygon) => polygon.distanceToPoint(point) < this.treeSize * 2,
+    );
+  }
+
   #generateTrees() {
     const points = [
       ...this.roadBorders
@@ -66,42 +87,7 @@ class World {
         linearInterpolation(bottom, top, Math.random()),
       );
 
-      // TODO: Create separate function for all the following operations
-      // Check if tree is inside/nearby building/road
-      let keep = true;
-      for (const polygon of invalidPolygons) {
-        if (
-          polygon.containsPoint(point) ||
-          polygon.distanceToPoint(point) < this.treeSize / 2
-        ) {
-          keep = false;
-          break;
-        }
-      }
-
-      // Check if tree is too close to other trees
-      if (keep) {
-        for (const tree of trees) {
-          if (distance(tree, point) < this.treeSize) {
-            keep = false;
-            break;
-          }
-        }
-      }
-
-      // Check if tree is too far from anything
-      if (keep) {
-        let closeToSomething = false;
-        for (const polygon of invalidPolygons) {
-          if (polygon.distanceToPoint(point) < this.treeSize * 2) {
-            closeToSomething = true;
-            break;
-          }
-        }
-        keep = closeToSomething;
-      }
-
-      if (keep) {
+      if (this.#isValidTreePlacement(point, invalidPolygons, trees)) {
         trees.push(point);
         tryCount = 0;
       }
@@ -166,7 +152,7 @@ class World {
 
     const epsilon = 0.001;
     for (let i = 0; i < bases.length - 1; i++) {
-      for (let j = i + 1; j < bases.length - 1; j++) {
+      for (let j = i + 1; j < bases.length; j++) {
         if (
           bases[i].intersectsPolygon(bases[j]) ||
           bases[i].distanceToPolygon(bases[j]) < this.spacing - epsilon

@@ -91,7 +91,9 @@ function linearInterpolation2D(A, B, t) {
   );
 }
 
-function getRandomColor() {
-  const hue = 290 + Math.random() * 260;
-  return `hsl(${hue}, 100%, 60%)`;
+function imitate3DPoint(point, viewpoint, height) {
+  const direction = normalize(subtract(point, viewpoint));
+  const dist = distance(point, viewpoint);
+  const scalar = Math.atan(dist / 300) / (Math.PI / 2);
+  return add(point, scale(direction, height * scalar));
 }

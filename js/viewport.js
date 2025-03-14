@@ -86,6 +86,5 @@ class Viewport {
     const step = 0.1;
     this.zoom += direction * step;
     this.zoom = Math.max(1, Math.min(5, this.zoom));
-    console.log(this.zoom);
   }
 }

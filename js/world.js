@@ -52,7 +52,7 @@ class World {
       return false;
 
     // Check if tree is too close to other trees
-    if (trees.some((tree) => distance(tree, point) < this.treeSize))
+    if (trees.some((tree) => distance(tree.center, point) < this.treeSize))
       return false;
 
     // Check if tree is too far from anything
@@ -66,7 +66,7 @@ class World {
       ...this.roadBorders
         .map((segment) => [segment.point1, segment.point2])
         .flat(),
-      ...this.buildings.map((building) => building.points).flat(),
+      ...this.buildings.map((building) => building.base.points).flat(),
     ];
 
     const left = Math.min(...points.map((point) => point.x));
@@ -75,7 +75,7 @@ class World {
     const bottom = Math.max(...points.map((point) => point.y));
 
     const invalidPolygons = [
-      ...this.buildings,
+      ...this.buildings.map((building) => building.base),
       ...this.envelopes.map((envelope) => envelope.polygon),
     ];
 
@@ -88,7 +88,7 @@ class World {
       );
 
       if (this.#isValidTreePlacement(point, invalidPolygons, trees)) {
-        trees.push(point);
+        trees.push(new Tree(point, this.treeSize));
         tryCount = 0;
       }
       tryCount++;
@@ -162,10 +162,10 @@ class World {
         }
       }
     }
-    return bases;
+    return bases.map((base) => new Building(base));
   }
 
-  draw(context) {
+  draw(context, viewpoint) {
     for (const envelope of this.envelopes) {
       envelope.draw(context, { fill: "#BBB", stroke: "#BBB", lineWidth: 15 });
     }
@@ -182,12 +182,14 @@ class World {
       segment.draw(context, { color: "white", width: 4 });
     }
 
-    for (const tree of this.trees) {
-      tree.draw(context, { size: this.treeSize, color: "rgba(0,0,0,0.5)" });
-    }
+    const items = [...this.buildings, ...this.trees];
+    items.sort(
+      (a, b) =>
+        b.base.distanceToPoint(viewpoint) - a.base.distanceToPoint(viewpoint),
+    );
 
-    for (const building of this.buildings) {
-      building.draw(context);
+    for (const item of items) {
+      item.draw(context, viewpoint);
     }
   }
 }

@@ -11,11 +11,23 @@
     <div id="controls">
       <button onclick="dispose()">🗑</button>
       <button onclick="save()">💾</button>
+      <button id="graphButton" onclick="setMode('graph')">🛣</button>
+      <button id="stopButton" onclick="setMode('stop')">🚦</button>
+      <button id="crossingButton" onclick="setMode('crossing')">🚶</button>
+      <button id="startButton" onclick="setMode('start')">🚙</button>
     </div>
 
     <script src="js/world.js"></script>
-    <script src="js/graphEditor.js"></script>
     <script src="js/viewport.js"></script>
+    <script src="js/markings/marking.js"></script>
+    <script src="js/markings/stop.js"></script>
+    <script src="js/markings/start.js"></script>
+    <script src="js/markings/crossing.js"></script>
+    <script src="js/editors/markingEditor.js"></script>
+    <script src="js/editors/graphEditor.js"></script>
+    <script src="js/editors/stopEditor.js"></script>
+    <script src="js/editors/startEditor.js"></script>
+    <script src="js/editors/crossingEditor.js"></script>
     <script src="js/items/tree.js"></script>
     <script src="js/items/building.js"></script>
     <script src="js/math/utils.js"></script>
@@ -36,9 +48,30 @@
       const world = new World(graph);
 
       const viewport = new Viewport(canvas);
-      const graphEditor = new GraphEditor(viewport, graph);
+
+      const tools = {
+        graph: {
+          button: graphButton,
+          editor: new GraphEditor(viewport, graph),
+        },
+        stop: {
+          button: stopButton,
+          editor: new StopEditor(viewport, world),
+        },
+        crossing: {
+          button: crossingButton,
+          editor: new CrossingEditor(viewport, world),
+        },
+        start: {
+          button: startButton,
+          editor: new StartEditor(viewport, world),
+        },
+      };
 
       let graphHash = graph.hash();
+
+      setMode("graph");
+
       animate();
 
       function animate() {
@@ -52,16 +85,36 @@
         const viewpoint = scale(viewport.getOffset(), -1);
         world.draw(context, viewpoint);
         context.globalAlpha = 0.3;
-        graphEditor.display();
+
+        for (const tool of Object.values(tools)) {
+          tool.editor.display();
+        }
+
         requestAnimationFrame(animate);
       }
 
       function dispose() {
-        graphEditor.dispose();
+        tools.graph.editor.dispose();
+        world.markings = [];
       }
 
       function save() {
         localStorage.setItem("graph", JSON.stringify(graph));
+      }
+
+      function setMode(mode) {
+        disableEditors();
+        tools[mode].button.style.backgroundColor = "white";
+        tools[mode].button.style.filter = "";
+        tools[mode].editor.enable();
+      }
+
+      function disableEditors() {
+        for (const tool of Object.values(tools)) {
+          tool.button.style.background = "gray";
+          tool.button.style.filter = "grayscale(100%)";
+          tool.editor.disable();
+        }
       }
     </script>
   </body>

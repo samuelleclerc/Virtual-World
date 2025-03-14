@@ -85,8 +85,8 @@ class Graph {
   }
 
   dispose() {
-    this.points.length = 0;
-    this.segments.length = 0;
+    this.points = [];
+    this.segments = [];
   }
 
   draw(context) {

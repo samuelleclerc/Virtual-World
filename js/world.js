@@ -20,12 +20,15 @@ class World {
     this.roadBorders = [];
     this.buildings = [];
     this.trees = [];
+    this.laneGuides = [];
+
+    this.markings = [];
 
     this.generate();
   }
 
   generate() {
-    this.envelopes.length = 0;
+    this.envelopes = [];
 
     for (const segment of this.graph.segments) {
       this.envelopes.push(
@@ -38,6 +41,9 @@ class World {
     );
     this.buildings = this.#generateBuildings();
     this.trees = this.#generateTrees();
+
+    this.laneGuides = [];
+    this.laneGuides.push(...this.#generateLaneGuides());
   }
 
   #isValidTreePlacement(point, invalidPolygons, trees) {
@@ -59,6 +65,18 @@ class World {
     return invalidPolygons.some(
       (polygon) => polygon.distanceToPoint(point) < this.treeSize * 2,
     );
+  }
+
+  #generateLaneGuides() {
+    const tempEnvelopes = [];
+
+    for (const segment of this.graph.segments) {
+      tempEnvelopes.push(
+        new Envelope(segment, this.roadWidth / 2, this.roadRoundness),
+      );
+    }
+
+    return Polygon.union(tempEnvelopes.map((envelope) => envelope.polygon));
   }
 
   #generateTrees() {
@@ -168,6 +186,10 @@ class World {
   draw(context, viewpoint) {
     for (const envelope of this.envelopes) {
       envelope.draw(context, { fill: "#BBB", stroke: "#BBB", lineWidth: 15 });
+    }
+
+    for (const marking of this.markings) {
+      marking.draw(context);
     }
 
     for (const segment of this.graph.segments) {

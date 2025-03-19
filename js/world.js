@@ -24,6 +24,8 @@ class World {
 
     this.markings = [];
 
+    this.frameCount = 0;
+
     this.generate();
   }
 
@@ -183,7 +185,84 @@ class World {
     return bases.map((base) => new Building(base));
   }
 
+  #getIntersections() {
+    const subset = [];
+
+    console.log({ points: this.graph.points });
+    console.log({ segments: this.graph.segments });
+
+    for (const point of this.graph.points) {
+      let degree = 0;
+
+      for (const segment of this.graph.segments) {
+        if (segment.includes(point)) {
+          degree++;
+        }
+      }
+
+      console.log(`Point ${point.x}, ${point.y} has degree:`, degree);
+
+      if (degree > 2) {
+        subset.push(point);
+      }
+    }
+
+    console.log("Intersections:", subset);
+    return subset;
+  }
+
+  #updateLights() {
+    const lights = this.markings.filter((m) => m instanceof Light);
+    const controlCenters = [];
+
+    for (const light of lights) {
+      const point = getNearestPoint(light.center, this.#getIntersections());
+      let controlCenter = controlCenters.find((controlCenter) =>
+        controlCenter.equals(point),
+      );
+
+      if (!controlCenter) {
+        controlCenter = new Point(point.x, point.y);
+        controlCenter.lights = [light];
+        controlCenters.push(controlCenter);
+      } else {
+        controlCenter.lights.push(light);
+      }
+    }
+
+    const greenDuration = 2;
+    const yellowDuration = 1;
+
+    for (const center of controlCenters) {
+      center.ticks = center.lights.length * (greenDuration + yellowDuration);
+    }
+
+    const tick = Math.floor(this.frameCount / 60);
+
+    for (const center of controlCenters) {
+      const controlCenterTick = tick % center.ticks;
+      const greenYellowIndex = Math.floor(
+        controlCenterTick / (greenDuration + yellowDuration),
+      );
+      const greenYellowState =
+        controlCenterTick % (greenDuration + yellowDuration) < greenDuration
+          ? "green"
+          : "yellow";
+
+      for (let i = 0; i < center.lights.length; i++) {
+        if (i === greenYellowIndex) {
+          center.lights[i].state = greenYellowState;
+        } else {
+          center.lights[i].state = "red";
+        }
+      }
+    }
+    this.frameCount++;
+  }
+
   draw(context, viewpoint) {
+    this.#updateLights();
+
     for (const envelope of this.envelopes) {
       envelope.draw(context, { fill: "#BBB", stroke: "#BBB", lineWidth: 15 });
     }

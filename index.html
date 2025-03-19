@@ -13,8 +13,12 @@
       <button onclick="save()">💾</button>
       <button id="graphButton" onclick="setMode('graph')">🛣</button>
       <button id="stopButton" onclick="setMode('stop')">🚦</button>
+      <button id="yieldButton" onclick="setMode('yield')">⚠️</button>
       <button id="crossingButton" onclick="setMode('crossing')">🚶</button>
+      <button id="parkingButton" onclick="setMode('parking')">🅿️</button>
+      <button id="lightButton" onclick="setMode('light')">🚦</button>
       <button id="startButton" onclick="setMode('start')">🚙</button>
+      <button id="targetButton" onclick="setMode('target')">🎯</button>
     </div>
 
     <script src="js/world.js"></script>
@@ -23,9 +27,17 @@
     <script src="js/markings/stop.js"></script>
     <script src="js/markings/start.js"></script>
     <script src="js/markings/crossing.js"></script>
+    <script src="js/markings/parking.js"></script>
+    <script src="js/markings/light.js"></script>
+    <script src="js/markings/target.js"></script>
+    <script src="js/markings/yield.js"></script>
     <script src="js/editors/markingEditor.js"></script>
     <script src="js/editors/graphEditor.js"></script>
     <script src="js/editors/stopEditor.js"></script>
+    <script src="js/editors/parkingEditor.js"></script>
+    <script src="js/editors/lightEditor.js"></script>
+    <script src="js/editors/targetEditor.js"></script>
+    <script src="js/editors/yieldEditor.js"></script>
     <script src="js/editors/startEditor.js"></script>
     <script src="js/editors/crossingEditor.js"></script>
     <script src="js/items/tree.js"></script>
@@ -65,6 +77,22 @@
         start: {
           button: startButton,
           editor: new StartEditor(viewport, world),
+        },
+        parking: {
+          button: parkingButton,
+          editor: new ParkingEditor(viewport, world),
+        },
+        light: {
+          button: lightButton,
+          editor: new LightEditor(viewport, world),
+        },
+        target: {
+          button: targetButton,
+          editor: new TargetEditor(viewport, world),
+        },
+        yield: {
+          button: yieldButton,
+          editor: new YieldEditor(viewport, world),
         },
       };
 

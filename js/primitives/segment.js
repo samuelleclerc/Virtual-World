@@ -36,17 +36,17 @@ class Segment {
     const b = subtract(this.point2, this.point1);
     const normalizedB = normalize(b);
     const scalar = dot(a, normalizedB);
-    const projection = {
+    return {
       point: add(this.point1, scale(normalizedB, scalar)),
       offset: scalar / magnitude(b),
     };
-    return projection;
   }
 
-  draw(context, { width = 2, color = "black", dash = [] } = {}) {
+  draw(context, { width = 2, color = "black", dash = [], cap = "butt" } = {}) {
     context.beginPath();
     context.lineWidth = width;
     context.strokeStyle = color;
+    context.lineCap = cap;
     context.setLineDash(dash);
     context.moveTo(this.point1.x, this.point1.y);
     context.lineTo(this.point2.x, this.point2.y);
